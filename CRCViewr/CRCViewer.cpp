@@ -27,62 +27,38 @@ unsigned char crc_table[256] = {
 			0x7f, 0x62, 0x45, 0x58, 0x0b, 0x16, 0x31, 0x2c, 0x97, 0x8a,
 			0xad, 0xb0, 0xe3, 0xfe, 0xd9, 0xc4
 };
-void getCRCTable() {
-	unsigned char a = 0;
-
-	//crc 계산
+void getCRCTable(unsigned char crcdata[], int len)
+{	
 	unsigned char crc = 0xFF;
 
-	crc = crc_table[crc ^ a]; //1
-	printf("%X\n", crc);
-
-	crc = crc_table[crc ^ a];//2
-	printf("%X\n", crc);
-	/*
-	crc = crc_table[crc ^ a];//3
-	printf("%X\n", crc);
-	crc = crc_table[crc ^ a];//4
-	printf("%X\n", crc);
-	crc = crc_table[crc ^ a];//5
-	printf("%X\n", crc);
-	crc = crc_table[crc ^ a];//6
-	printf("%X\n", crc);
-	crc = crc_table[crc ^ a];//7
-	printf("%X\n", crc);
-	crc = crc_table[crc ^ a];//8
-	printf("%X\n", crc);
-	*/
+	for (int i = 0; i < len; i++) 
+	{
+		printf("CRCtable %d ", i + 1);
+		crc = crc_table[crc ^ crcdata[i]];
+		printf("%X\n", crc);
+	}
 	crc = crc ^ 0xFF;
-	printf("%X\n", crc);
+	printf("Rseult %X\n", crc);
 }
 unsigned char CRC8_SAEJ1850(unsigned char* crcdata, unsigned int len) {
-	unsigned short i, j; //17 -> 0xcd
+	unsigned short i, j;
 	unsigned char crc = 0xFF;
 
 	for (i = 0; i < len; i++) {
 		crc = crc ^ (*crcdata);
-		printf("crcdata %X\n", *crcdata);
 		crcdata++;
+		for (j = 0; j < 8; j++)
+		{
+			if (crc & 0x80) {
+				crc = (crc << 1) ^ 0x1D;
+			}
+			else {
+				crc = crc << 1;
+			}
+		}
 	}
 
-	for (j = 0; j < 8; j++) 
-	{
-		if (crc & 0x80) {
-			crc = (crc << 1) ^ 0x1D;
-		}
-		else {
-			crc = crc << 1;
-		}
-	}
-	for (j = 0; j < 8; j++)
-	{
-		if (crc & 0x80) {
-			crc = (crc << 1) ^ 0x1D;
-		}
-		else {
-			crc = crc << 1;
-		}
-	}
+
 	return crc ^ 0xFF;
 }
 int main(void) 
@@ -96,15 +72,30 @@ int main(void)
 	unsigned char crcdata5[9] = { 0x33, 0x22, 0x55, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
 	unsigned char crcdata6[3] = { 0x92, 0x6B, 0x55 };
 	unsigned char crcdata7[4] = { 0xFF, 0xFF, 0xFF, 0xFF };
-
-	printf("#1 %X\n",CRC8_SAEJ1850(crcdata1, 2));
-	getCRCTable();
-	//printf("#2 %X\n",CRC8_SAEJ1850(crcdata2, 3));
-	//printf("#3 %X\n",CRC8_SAEJ1850(crcdata3, 4));
-	//printf("#4 %X\n",CRC8_SAEJ1850(crcdata4, 4));
-	//printf("#5 %X\n",CRC8_SAEJ1850(crcdata5, 9));
-	//printf("#6 %X\n",CRC8_SAEJ1850(crcdata6, 3));
-	//printf("#7 %X\n",CRC8_SAEJ1850(crcdata7, 4));
+	unsigned char crcdata8[15] = { 0x11, 0x11, 0x11, 0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11 };
+	printf("#CRC 직접 계산 예시 01 %X\n",CRC8_SAEJ1850(crcdata1, 2));
+	getCRCTable(crcdata1, 2);
+	printf("--------------------------\n");
+	printf("#CRC 직접 계산 예시 02 %X\n", CRC8_SAEJ1850(crcdata2, 3));
+	getCRCTable(crcdata2, 3);
+	printf("--------------------------\n");
+	printf("#CRC 직접 계산 예시 03 %X\n", CRC8_SAEJ1850(crcdata3, 4));
+	getCRCTable(crcdata3, 4);
+	printf("--------------------------\n");
+	printf("#CRC 직접 계산 예시 04 %X\n", CRC8_SAEJ1850(crcdata4, 4));
+	getCRCTable(crcdata4, 4);
+	printf("--------------------------\n");
+	printf("#CRC 직접 계산 예시 05 %X\n", CRC8_SAEJ1850(crcdata5, 9));
+	getCRCTable(crcdata5, 9);
+	printf("--------------------------\n");
+	printf("#CRC 직접 계산 예시 06 %X\n", CRC8_SAEJ1850(crcdata6, 3));
+	getCRCTable(crcdata6, 3);
+	printf("--------------------------\n");
+	printf("#CRC 직접 계산 예시 07 %X\n", CRC8_SAEJ1850(crcdata7, 4));
+	getCRCTable(crcdata7, 4);
+	printf("--------------------------\n");
+	printf("#CRC 직접 계산 예시 08 %X\n", CRC8_SAEJ1850(crcdata8, 15));
+	getCRCTable(crcdata8, 15);
 
 	return 0;
 }
